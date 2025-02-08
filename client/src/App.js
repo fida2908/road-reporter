@@ -3,56 +3,90 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import './App.css';
 import MapComponent from './MapComponent';
 import ReportPage from './ReportPage';
-import AdminAuthPage from './AdminAuthPage'; // Signup/Login page for admin
-import UserAuthPage from './UserAuthPage';   // Signup/Login page for users
+import AdminAuthPage from './AdminAuthPage';
+import UserAuthPage from './UserAuthPage';
 import AdminDashboard from './AdminDashboard';
-import { db, auth, storage } from './firebaseConfig'; // Correct import
-
+import { db } from './firebaseConfig';
 import { collection, query, onSnapshot } from "firebase/firestore";
 
 const App = () => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
 
+  // ✅ Define states for location and reports
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
+  const [location, setLocation] = useState("");
+  const [reportedIssues, setReportedIssues] = useState([]); // Stores reports for MapComponent
+
   useEffect(() => {
-    // Check admin and user authentication from localStorage
-    const adminAuth = localStorage.getItem('isAdminAuthenticated') === 'true';
-    const userAuth = localStorage.getItem('isUserAuthenticated') === 'true';
-    setIsAdminAuthenticated(adminAuth);
-    setIsUserAuthenticated(userAuth);
+    // Check authentication from localStorage
+    setIsAdminAuthenticated(localStorage.getItem('isAdminAuthenticated') === 'true');
+    setIsUserAuthenticated(localStorage.getItem('isUserAuthenticated') === 'true');
+  }, []);
+
+  useEffect(() => {
+    // Fetch reported issues from Firestore
+    const q = query(collection(db, "reports"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const issues = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setReportedIssues(issues);
+    });
+
+    return () => unsubscribe(); // Cleanup
   }, []);
 
   const handleAdminLogin = () => {
     setIsAdminAuthenticated(true);
-    localStorage.setItem('isAdminAuthenticated', 'true'); // Persist admin authentication
+    localStorage.setItem('isAdminAuthenticated', 'true');
   };
 
   const handleUserLogin = () => {
     setIsUserAuthenticated(true);
-    localStorage.setItem('isUserAuthenticated', 'true'); // Persist user authentication
+    localStorage.setItem('isUserAuthenticated', 'true');
   };
 
   return (
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomePage reportedIssues={reportedIssues} />} />
           <Route path="/user-auth" element={<UserAuthPage onLogin={handleUserLogin} />} />
           <Route path="/admin-auth" element={<AdminAuthPage onLogin={handleAdminLogin} />} />
-          <Route path="/report" element={isUserAuthenticated ? <ReportPage /> : <UserAuthPage onLogin={handleUserLogin} />} />
-          <Route path="/admin-dashboard" element={isAdminAuthenticated ? <AdminDashboard /> : <AdminAuthPage onLogin={handleAdminLogin} />} />
+
+          {/* ✅ Ensure authenticated users can report an issue */}
+          <Route 
+            path="/report" 
+            element={
+              isUserAuthenticated ? (
+                <ReportPage 
+                  setLatitude={setLatitude} 
+                  setLongitude={setLongitude} 
+                  setLocation={setLocation} 
+                />
+              ) : (
+                <UserAuthPage onLogin={handleUserLogin} />
+              )
+            } 
+          />
+
+          <Route 
+            path="/admin-dashboard" 
+            element={isAdminAuthenticated ? <AdminDashboard /> : <AdminAuthPage onLogin={handleAdminLogin} />} 
+          />
         </Routes>
       </div>
     </Router>
   );
 };
 
-const HomePage = () => {
+// ✅ Pass reported pothole data to the map component
+const HomePage = ({ reportedIssues }) => {
   const [reportedPotholes, setReportedPotholes] = useState(0);
   const [fixedPotholes, setFixedPotholes] = useState(0);
 
   useEffect(() => {
-    const q = query(collection(db, "potholes"));
+    const q = query(collection(db, "reports"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       let reportedCount = 0, fixedCount = 0;
       snapshot.docs.forEach((doc) => {
@@ -65,7 +99,7 @@ const HomePage = () => {
       setFixedPotholes(fixedCount);
     });
 
-    return () => unsubscribe(); // Cleanup listener
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -78,7 +112,7 @@ const HomePage = () => {
 
       <section className="map-section">
         <h2>Live Map</h2>
-        <MapComponent />
+        <MapComponent reportedIssues={reportedIssues} />
       </section>
 
       <section className="statistics-section">

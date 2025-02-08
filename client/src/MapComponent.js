@@ -1,62 +1,77 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { db} from './firebaseConfig'; // Correct import
+import { db } from "./firebaseConfig"; 
 import { collection, getDocs } from "firebase/firestore";
 
-// Custom Marker Icons
-const redIcon = new L.Icon({
-  iconUrl: "/marker-icon-red.png", // User's location
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
+// Custom Icons
+const userLocationIcon = new L.Icon({
+  iconUrl: "/blue-marker.png",
+  iconSize: [30, 40],
+  iconAnchor: [15, 40],
   popupAnchor: [1, -34],
-  shadowSize: [41, 41],
 });
 
-const yellowIcon = new L.Icon({
-  iconUrl: "/marker-icon-yellow.png", // Reported issue
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
+const reportedLocationIcon = new L.Icon({
+  iconUrl: "/black-marker.png",
+  iconSize: [30, 40],
+  iconAnchor: [15, 40],
   popupAnchor: [1, -34],
-  shadowSize: [41, 41],
 });
 
-// Component to update map center dynamically
-const UpdateMapCenter = ({ position }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (position) {
-      map.setView(position, 15);
-    }
-  }, [position, map]);
+// Handle Click on Map to Get Location
+const MapClickHandler = ({ setLocation, setLatitude, setLongitude, setSelectedPosition }) => {
+  useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+      setLatitude(lat);
+      setLongitude(lng);
+
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+        .then((res) => res.json())
+        .then((data) => {
+          const locationName = data.display_name || "Unknown location";
+          setLocation(locationName);
+          setSelectedPosition({ lat, lng, name: locationName });
+        })
+        .catch(() => {
+          setLocation("Unknown location");
+          setSelectedPosition({ lat, lng, name: "Unknown location" });
+        });
+    },
+  });
   return null;
 };
 
-const MapComponent = () => {
+// Main Map Component
+const MapComponent = ({ setLocation, setLatitude, setLongitude, submittedLocation }) => {
   const [position, setPosition] = useState(null);
-  const [reports, setReports] = useState([]);
+  const [selectedPosition, setSelectedPosition] = useState(null);
+  const [reportedLocations, setReportedLocations] = useState([]); // Store reported locations
 
-  // Get user location
+  // Fetch Current User Location
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setPosition([pos.coords.latitude, pos.coords.longitude]),
+        (pos) => {
+          setPosition([pos.coords.latitude, pos.coords.longitude]);
+        },
         (error) => console.error("Error getting location:", error)
       );
     }
   }, []);
 
-  // Fetch reports from Firestore
+  // Fetch Reported Locations from Firestore
   useEffect(() => {
     const fetchReports = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "reports"));
-        const reportList = querySnapshot.docs.map(doc => ({
+        const reports = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        setReports(reportList);
+        setReportedLocations(reports);
       } catch (error) {
         console.error("Error fetching reports:", error);
       }
@@ -66,35 +81,65 @@ const MapComponent = () => {
   }, []);
 
   return (
-    <div style={{ height: "400px", width: "100%", borderRadius: "10px", overflow: "hidden" }}>
-      {/* Render map only if the user's location is obtained */}
+    <div style={{ height: "300px", width: "100%", borderRadius: "10px", overflow: "hidden" }}>
       {position ? (
         <MapContainer center={position} zoom={15} style={{ height: "100%", width: "100%" }}>
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; OpenStreetMap contributors'
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+          {/* Click Handler for Selecting Location */}
+          <MapClickHandler 
+            setLocation={setLocation} 
+            setLatitude={setLatitude} 
+            setLongitude={setLongitude} 
+            setSelectedPosition={setSelectedPosition} 
           />
 
-          <UpdateMapCenter position={position} />
-
-          {/* User Location Marker */}
-          <Marker position={position} icon={redIcon}>
-            <Popup>You are here!</Popup>
-          </Marker>
-
-          {/* Reported Issues Markers */}
-          {reports.map(report => (
-            <Marker key={report.id} position={[report.latitude, report.longitude]} icon={yellowIcon}>
-              <Popup>
-                <strong>{report.issueType}</strong><br />
-                {report.description}<br />
-                <i>{report.location}</i>
-              </Popup>
+          {/* Current User Location Marker */}
+          {position && (
+            <Marker position={position} icon={userLocationIcon}>
+              <Popup>You are here!</Popup>
             </Marker>
-          ))}
+          )}
+
+          {/* Selected Position Marker (Only if user clicks on map) */}
+          {selectedPosition && selectedPosition.lat && selectedPosition.lng && (
+            <Marker position={[selectedPosition.lat, selectedPosition.lng]}>
+              <Popup>{selectedPosition.name}</Popup>
+            </Marker>
+          )}
+
+          {/* Submitted Location Marker (Only if exists) */}
+          {submittedLocation && submittedLocation.lat && submittedLocation.lng && (
+            <Marker position={[submittedLocation.lat, submittedLocation.lng]} icon={reportedLocationIcon}>
+              <Popup>Reported Location</Popup>
+            </Marker>
+          )}
+
+          {/* Reported Locations Markers (Fetched from Firestore) */}
+          {Array.isArray(reportedLocations) && reportedLocations.length > 0 &&
+            reportedLocations.map((report) => (
+              report.latitude && report.longitude && (
+                <Marker 
+                  key={report.id} 
+                  position={[report.latitude, report.longitude]} 
+                  icon={reportedLocationIcon}
+                >
+                  <Popup>
+                    <strong>{report.issueType}</strong> <br />
+                    Severity: {report.severity} <br />
+                    Location: {report.location} <br />
+                    Description: {report.description} <br />
+                    {report.imageBase64 && (
+                      <img src={report.imageBase64} alt="Reported Issue" width="100" />
+                    )}
+                  </Popup>
+                </Marker>
+              )
+            ))
+          }
         </MapContainer>
       ) : (
-        <p>Fetching location...</p> // Display a message while waiting for location
+        <p>Fetching location...</p>
       )}
     </div>
   );

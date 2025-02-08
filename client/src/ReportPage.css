@@ -1,65 +1,81 @@
-.report-page {
-  max-width: 600px;
-  margin: 0 auto;
+.report-container {
+  max-width: 800px;
+  margin: 20px auto;
   padding: 20px;
-  background-color: white;
+  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 20px;
-  color: black; /* Black color for heading */
+  color: #333;
 }
 
-form {
+.success-popup {
+  background: #28a745;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.left-column, .right-column {
   display: flex;
   flex-direction: column;
 }
 
-form div {
-  margin-bottom: 15px;
-}
-
 label {
   font-weight: bold;
-  margin-bottom: 5px;
-  display: block;
-  color: black; /* Black color for labels */
+  margin-top: 10px;
 }
 
 input, select, textarea {
-  width: 100%;
-  padding: 8px;
-  margin: 5px 0;
+  padding: 10px;
+  margin-top: 5px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 5px;
 }
 
-textarea {
-  resize: vertical;
-  min-height: 100px;
+.map-section {
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.image-upload {
+  margin-top: 15px;
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.submit-container {
+  text-align: center;
+  margin-top: 20px;
 }
 
 button {
-  padding: 10px 15px;
-  background-color: orange; /* Orange background for the button */
-  color: white; /* White text for the button */
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
+  border-radius: 5px;
 }
 
 button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-input[type="file"] {
-  padding: 5px;
-  background-color: white;
-  border: 1px solid #ccc;
-  cursor: pointer;
+  background: gray;
 }

@@ -1,0 +1,78 @@
+.ReportPage {
+    text-align: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .report-form {
+    display: inline-block;
+    text-align: left;
+    max-width: 400px;
+    margin: auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .report-form label {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .report-form input,
+  .report-form select,
+  .report-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .report-form input[type="file"] {
+    padding: 5px;
+  }
+  
+  .report-form textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .report-form .submit-button {
+    background-color: #2A2E34;
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    width: 100%;
+    transition: background-color 0.3s ease;
+  }
+  
+  .report-form .submit-button:hover {
+    background-color: #2A2E34;
+  }
+  
+  .error-message {
+    color: #ff0000;
+    font-size: 0.875em;
+    margin-top: -5px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  
+  .image-preview {
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  .image-preview img {
+    max-width: 100%;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }

@@ -1,0 +1,74 @@
+.admin-dashboard {
+  padding: 20px;
+  background-color: black;
+  color: white;
+}
+
+h2 {
+  text-align: center;
+  color: yellow;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: black;
+  color: white;
+}
+
+th, td {
+  border: 1px solid yellow;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: orange;
+  color: black;
+}
+
+.issue-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border: 2px solid yellow;
+}
+
+.status {
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.status.pending {
+  color: orange;
+}
+
+.status.in-progress {
+  color: yellow;
+}
+
+.status.resolved {
+  color: white;
+}
+
+select {
+  padding: 5px;
+  background-color: yellow;
+  color: black;
+  border: none;
+  font-weight: bold;
+}
+
+button {
+  padding: 5px 10px;
+  background-color: orange;
+  color: black;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: yellow;
+}

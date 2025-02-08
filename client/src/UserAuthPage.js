@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './UserAuthPage.css';
+import { db, auth, storage } from './firebaseConfig'; // Correct import
+
 
 const UserAuthPage = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -23,8 +25,8 @@ const UserAuthPage = ({ onLogin }) => {
 
       if (email === storedEmail && password === storedPassword) {
         localStorage.setItem('isUserAuthenticated', 'true');
-        onLogin();
-        navigate('/report'); // Redirect to ReportPage
+        onLogin(); // Ensure onLogin callback is called
+        navigate('/report'); // Redirect to ReportPage after login
       } else {
         alert('Invalid credentials. Please try again.');
       }
@@ -35,8 +37,20 @@ const UserAuthPage = ({ onLogin }) => {
     <div className="auth-container">
       <h2>{isSignup ? 'User Sign Up' : 'User Login'}</h2>
       <form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <button type="submit">{isSignup ? 'Sign Up' : 'Login'}</button>
       </form>
       <p onClick={() => setIsSignup(!isSignup)}>

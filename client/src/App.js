@@ -6,19 +6,30 @@ import ReportPage from './ReportPage';
 import AdminAuthPage from './AdminAuthPage'; // Signup/Login page for admin
 import UserAuthPage from './UserAuthPage';   // Signup/Login page for users
 import AdminDashboard from './AdminDashboard';
+import { db, auth, storage } from './firebaseConfig'; // Correct import
+
+import { collection, query, onSnapshot } from "firebase/firestore";
 
 const App = () => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check admin authentication from localStorage
+    // Check admin and user authentication from localStorage
     const adminAuth = localStorage.getItem('isAdminAuthenticated') === 'true';
+    const userAuth = localStorage.getItem('isUserAuthenticated') === 'true';
     setIsAdminAuthenticated(adminAuth);
+    setIsUserAuthenticated(userAuth);
   }, []);
 
   const handleAdminLogin = () => {
     setIsAdminAuthenticated(true);
-    localStorage.setItem('isAdminAuthenticated', 'true'); // Persist authentication
+    localStorage.setItem('isAdminAuthenticated', 'true'); // Persist admin authentication
+  };
+
+  const handleUserLogin = () => {
+    setIsUserAuthenticated(true);
+    localStorage.setItem('isUserAuthenticated', 'true'); // Persist user authentication
   };
 
   return (
@@ -26,9 +37,9 @@ const App = () => {
       <div className="App">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/user-auth" element={<UserAuthPage />} />
+          <Route path="/user-auth" element={<UserAuthPage onLogin={handleUserLogin} />} />
           <Route path="/admin-auth" element={<AdminAuthPage onLogin={handleAdminLogin} />} />
-          <Route path="/report" element={<ReportPage />} />
+          <Route path="/report" element={isUserAuthenticated ? <ReportPage /> : <UserAuthPage onLogin={handleUserLogin} />} />
           <Route path="/admin-dashboard" element={isAdminAuthenticated ? <AdminDashboard /> : <AdminAuthPage onLogin={handleAdminLogin} />} />
         </Routes>
       </div>
@@ -37,6 +48,26 @@ const App = () => {
 };
 
 const HomePage = () => {
+  const [reportedPotholes, setReportedPotholes] = useState(0);
+  const [fixedPotholes, setFixedPotholes] = useState(0);
+
+  useEffect(() => {
+    const q = query(collection(db, "potholes"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let reportedCount = 0, fixedCount = 0;
+      snapshot.docs.forEach((doc) => {
+        reportedCount++;
+        if (doc.data().status === "Fixed") {
+          fixedCount++;
+        }
+      });
+      setReportedPotholes(reportedCount);
+      setFixedPotholes(fixedCount);
+    });
+
+    return () => unsubscribe(); // Cleanup listener
+  }, []);
+
   return (
     <>
       <header className="App-header">
@@ -51,7 +82,7 @@ const HomePage = () => {
       </section>
 
       <section className="statistics-section">
-        <h3>X potholes reported, Y fixed this month!</h3>
+        <h3>{reportedPotholes} potholes reported, {fixedPotholes} fixed this month!</h3>
       </section>
     </>
   );

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { db, auth, storage } from './firebaseConfig';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import './AdminAuthPage.css';
 
 const AdminAuthPage = ({ onLogin }) => {
@@ -8,31 +10,28 @@ const AdminAuthPage = ({ onLogin }) => {
   const [isSignup, setIsSignup] = useState(true);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSignup) {
-      localStorage.setItem('adminEmail', email);
-      localStorage.setItem('adminPassword', password);
-      alert('Signup successful! Please log in.');
-      setIsSignup(false);
-    } else {
-      const storedEmail = localStorage.getItem('adminEmail');
-      const storedPassword = localStorage.getItem('adminPassword');
 
-      if (email === storedEmail && password === storedPassword) {
+    try {
+      if (isSignup) {
+        // Sign up admin using Firebase
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert('Signup successful! Please log in.');
+        setIsSignup(false);
+      } else {
+        // Log in admin using Firebase
+        await signInWithEmailAndPassword(auth, email, password);
         localStorage.setItem('isAdminAuthenticated', 'true');
-        
-        // Check if onLogin exists before calling
+
         if (onLogin) {
           onLogin();
-        } else {
-          console.error('onLogin function is not provided');
         }
 
-        navigate('/admin-dashboard'); 
-      } else {
-        alert('Invalid credentials. Please try again.');
+        navigate('/admin-dashboard'); // Redirect to dashboard after login
       }
+    } catch (error) {
+      alert(`Authentication failed: ${error.message}`);
     }
   };
 
@@ -40,8 +39,20 @@ const AdminAuthPage = ({ onLogin }) => {
     <div className="auth-container">
       <h2>{isSignup ? 'Admin Sign Up' : 'Admin Login'}</h2>
       <form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <button type="submit">{isSignup ? 'Sign Up' : 'Login'}</button>
       </form>
       <p onClick={() => setIsSignup(!isSignup)}>

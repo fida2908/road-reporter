@@ -1,34 +1,45 @@
-// AdminDashboard.js
 import React, { useEffect, useState } from "react";
+import { db, auth, storage } from './firebaseConfig'; // Correct import
+import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
-  const [issues, setIssues] = useState([]);
+  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch reports from Firestore
   useEffect(() => {
-    fetch("/api/issues")
-      .then((response) => response.json())
-      .then((data) => {
-        setIssues(data);
+    const fetchReports = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "reports"));
+        const reportList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setReports(reportList);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      } finally {
         setLoading(false);
-      })
-      .catch((error) => console.error("Error fetching issues:", error));
+      }
+    };
+
+    fetchReports();
   }, []);
 
-  const updateStatus = (id, status) => {
-    fetch(`/api/issues/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status }),
-    })
-      .then((response) => response.json())
-      .then((updatedIssue) => {
-        setIssues(issues.map(issue => issue._id === id ? updatedIssue : issue));
-      })
-      .catch((error) => console.error("Error updating issue:", error));
+  // Update issue status
+  const updateStatus = async (id, newStatus) => {
+    try {
+      const reportRef = doc(db, "reports", id);
+      await updateDoc(reportRef, { status: newStatus });
+
+      // Update state after Firestore update
+      setReports(reports.map(report => 
+        report.id === id ? { ...report, status: newStatus } : report
+      ));
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
   };
 
   if (loading) {
@@ -41,26 +52,30 @@ const AdminDashboard = () => {
       <table>
         <thead>
           <tr>
-            <th>Image</th>
+            <th>Issue Type</th>
             <th>Description</th>
             <th>Location</th>
-            <th>Issue Type</th>
+            <th>Coordinates</th>
             <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {issues.map((issue) => (
-            <tr key={issue._id}>
-              <td><img src={issue.imageUrl} alt="Issue" className="issue-image" /></td>
-              <td>{issue.description}</td>
-              <td>{issue.location}</td>
-              <td>{issue.issueType}</td>
-              <td className={`status ${issue.status.toLowerCase()}`}>{issue.status}</td>
+          {reports.map((report) => (
+            <tr key={report.id}>
+              <td>{report.issueType}</td>
+              <td>{report.description}</td>
+              <td>{report.location}</td>
+              <td>
+                {report.latitude}, {report.longitude}
+              </td>
+              <td className={`status ${report.status?.toLowerCase() || "pending"}`}>
+                {report.status || "Pending"}
+              </td>
               <td>
                 <select
-                  value={issue.status}
-                  onChange={(e) => updateStatus(issue._id, e.target.value)}
+                  value={report.status || "Pending"}
+                  onChange={(e) => updateStatus(report.id, e.target.value)}
                 >
                   <option value="Pending">Pending</option>
                   <option value="In Progress">In Progress</option>

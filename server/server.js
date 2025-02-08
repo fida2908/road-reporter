@@ -8,7 +8,7 @@ require('dotenv').config();
 const serviceAccount = require('./firebase-config.json'); // Download your Firebase Admin SDK
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: "your-project-id.appspot.com"
+  storageBucket: "road-reporter-a3c35.appspot.com"
 });
 const db = admin.firestore();
 const app = express();

@@ -14,9 +14,9 @@ const App = () => {
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
 
   // ✅ State variables for location tracking
-   const [latitude, setLatitude] = useState(null);
-  const [longitude, setLongitude] = useState(null);
-   const [location, setLocation] = useState("");
+   //const [latitude, setLatitude] = useState(null);
+ // const [longitude, setLongitude] = useState(null);
+  // const [location, setLocation] = useState("");
 
   // ✅ Stores reported issues for the map
   const [reportedIssues, setReportedIssues] = useState([]);
@@ -72,9 +72,9 @@ const App = () => {
             element={
               isUserAuthenticated ? (
                 <ReportPage
-                  setLatitude={setLatitude}
-                  setLongitude={setLongitude}
-                  setLocation={setLocation}
+                 // setLatitude={setLatitude}
+                 // setLongitude={setLongitude}
+                 // setLocation={setLocation}
                 />
               ) : (
                 <UserAuthPage onLogin={handleUserLogin} />

@@ -1,95 +1,81 @@
+/* General styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+/* Admin Dashboard container */
 .admin-dashboard {
-  max-width: 90%;
-  margin: 20px auto;
   padding: 20px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  font-family: "Arial", sans-serif;
+  background-color: white;
+  max-width: 1200px;
+  margin: 30px auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-h2 {
+/* Heading styles */
+.admin-dashboard h2 {
   text-align: center;
-  color: #080438;
+  color: #ff6600; /* Orange */
   font-size: 24px;
-  margin-bottom: 15px;
-  text-transform: uppercase;
-  font-weight: bold;
+  margin-bottom: 30px;
 }
 
-.dashboard-table {
+/* Table styles */
+table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  color: #333; /* Dark text for readability */
 }
 
-.dashboard-table th,
-.dashboard-table td {
-  border: 1px solid #ddd;
+th, td {
   padding: 12px;
-  text-align: center;
-  font-size: 14px;
+  text-align: left;
 }
 
-.dashboard-table th {
-  background-color: #080438;
+th {
+  background-color: #333; /* Dark background for headers */
   color: white;
-  text-transform: uppercase;
-  font-size: 15px;
 }
 
-.dashboard-table tr:nth-child(even) {
-  background-color: #f3f3f3;
+td {
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #ddd;
 }
 
-.dashboard-table tr:hover {
-  background-color: #f1f1f1;
-  transition: 0.3s;
+tr:nth-child(even) td {
+  background-color: #f1f1f1; /* Slight grey background for alternating rows */
 }
 
-.pending-status {
-  color: #dc3545;
-  font-weight: bold;
-}
-
-.fixed-status {
-  color: #28a745;
-  font-weight: bold;
-}
-
-.fix-btn {
-  padding: 8px 12px;
-  background: #28a745;
+/* Action button styles */
+button {
+  background-color: #ff6600; /* Orange */
   color: white;
   border: none;
-  border-radius: 5px;
+  padding: 8px 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: bold;
-}
-
-.fix-btn:hover {
-  background: #218838;
-  transform: scale(1.05);
-}
-
-.image-preview {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.image-preview img {
-  width: 80px;
-  height: auto;
   border-radius: 5px;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  font-weight: bold;
+  transition: background-color 0.3s;
 }
 
-.image-preview img:hover {
-  transform: scale(1.2);
+button:hover {
+  background-color: #e65c00; /* Darker orange on hover */
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* No reports message */
+td[colspan="7"] {
+  text-align: center;
+  color: #666; /* Grey color for the no reports message */
+  font-size: 18px;
+  font-style: italic;
 }

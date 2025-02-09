@@ -16,7 +16,6 @@ const ReportPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Compress Image Before Storing
   const compressImage = (file, callback) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -27,7 +26,7 @@ const ReportPage = () => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
-        const maxSize = 800; // Max image size
+        const maxSize = 800;
         let width = img.width;
         let height = img.height;
 
@@ -47,12 +46,11 @@ const ReportPage = () => {
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
 
-        callback(canvas.toDataURL("image/jpeg", 0.7)); // Compress to 70%
+        callback(canvas.toDataURL("image/jpeg", 0.7));
       };
     };
   };
 
-  // ✅ Handle Image Upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -64,7 +62,6 @@ const ReportPage = () => {
     }
   };
 
-  // ✅ Handle Report Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -87,7 +84,7 @@ const ReportPage = () => {
         latitude: selectedPosition.lat,
         longitude: selectedPosition.lng,
         location: locationName,
-        imageBase64: image, // Store Base64 image
+        imageBase64: image,
         timestamp: new Date(),
       });
 
@@ -95,7 +92,6 @@ const ReportPage = () => {
       setSuccessMessage("Report submitted successfully! ✅");
       setTimeout(() => setSuccessMessage(""), 3000);
 
-      // Reset Form
       setIssueType("");
       setSeverity("Low");
       setDescription("");
@@ -125,6 +121,10 @@ const ReportPage = () => {
             <option value="Pothole">Pothole</option>
             <option value="Water-Logging">Water-Logging</option>
             <option value="Road Break">Road Break</option>
+            <option value="Speed-Bump">Speed-Bump</option>
+            <option value="Open Manhole">Open Manhole</option>
+            <option value="Road Construction">Road Construction</option>
+            <option value="Others">Others</option>
           </select>
 
           <label>Severity</label>

@@ -14,6 +14,7 @@
   padding: 50px 20px;
   color: white;
   border-bottom: 5px solid #E08307;
+  position: relative; /* Ensure logo stays inside the header */
 }
 
 .animated-heading {
@@ -83,6 +84,16 @@
   background-color: #333;
 }
 
+/* Logo styles */
+.logo {
+  position: absolute;
+  top: 10px;
+  left: 50px;
+  width: 200px;  /* Adjust the size of the logo */
+  height: auto;
+}
+
+/* Keyframe animations */
 @keyframes fadeIn {
   from {
     opacity: 0;

@@ -12,14 +12,14 @@ import { collection, query, onSnapshot } from "firebase/firestore";
 const App = () => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
-  
+
   // ✅ State variables for location tracking
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
   const [location, setLocation] = useState("");
 
   // ✅ Stores reported issues for the map
-  const [reportedIssues, setReportedIssues] = useState([]); 
+  const [reportedIssues, setReportedIssues] = useState([]);
 
   // ✅ Check authentication from localStorage on mount
   useEffect(() => {
@@ -52,39 +52,39 @@ const App = () => {
     <Router>
       <div className="App">
         <Routes>
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={
-              <HomePage 
-                reportedIssues={reportedIssues} 
-                setLatitude={setLatitude} 
-                setLongitude={setLongitude} 
-                setLocation={setLocation} 
+              <HomePage
+                reportedIssues={reportedIssues}
+                setLatitude={setLatitude}
+                setLongitude={setLongitude}
+                setLocation={setLocation}
               />
-            } 
+            }
           />
           <Route path="/user-auth" element={<UserAuthPage onLogin={handleUserLogin} />} />
           <Route path="/admin-auth" element={<AdminAuthPage onLogin={handleAdminLogin} />} />
 
           {/* ✅ Ensure authenticated users can report an issue */}
-          <Route 
-            path="/report" 
+          <Route
+            path="/report"
             element={
               isUserAuthenticated ? (
-                <ReportPage 
-                  setLatitude={setLatitude} 
-                  setLongitude={setLongitude} 
-                  setLocation={setLocation} 
+                <ReportPage
+                  setLatitude={setLatitude}
+                  setLongitude={setLongitude}
+                  setLocation={setLocation}
                 />
               ) : (
                 <UserAuthPage onLogin={handleUserLogin} />
               )
-            } 
+            }
           />
 
-          <Route 
-            path="/admin-dashboard" 
-            element={isAdminAuthenticated ? <AdminDashboard /> : <AdminAuthPage onLogin={handleAdminLogin} />} 
+          <Route
+            path="/admin-dashboard"
+            element={isAdminAuthenticated ? <AdminDashboard /> : <AdminAuthPage onLogin={handleAdminLogin} />}
           />
         </Routes>
       </div>
@@ -96,6 +96,7 @@ const App = () => {
 const HomePage = ({ reportedIssues, setLatitude, setLongitude, setLocation }) => {
   const [reportedPotholes, setReportedPotholes] = useState(0);
   const [fixedPotholes, setFixedPotholes] = useState(0);
+  const [routeReady, setRouteReady] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, "reports"));
@@ -114,10 +115,16 @@ const HomePage = ({ reportedIssues, setLatitude, setLongitude, setLocation }) =>
     return () => unsubscribe();
   }, []);
 
+  const handleRouteButtonClick = () => {
+    setRouteReady(true); // To trigger route calculation in MapComponent
+  };
+
   return (
     <>
       <header className="App-header">
-        <h1 className="animated-heading">Report. Track. Fix – Make Roads Safer!</h1>
+        {/* Logo added to top left, small size */}
+        <img src="logo.png" alt="Logo" className="logo" />
+        <h1 className="animated-heading">Report. Repair. Resolve – Make Roads Safer!</h1>
         <Link to="/user-auth" className="report-button">Report an Issue</Link>
         <Link to="/admin-auth" className="login-button">Login for Authority</Link>
       </header>
@@ -125,17 +132,23 @@ const HomePage = ({ reportedIssues, setLatitude, setLongitude, setLocation }) =>
       <section className="map-section">
         <h2>Live Map</h2>
         {/* ✅ Pass setLatitude, setLongitude, and setLocation to MapComponent */}
-        <MapComponent 
-          setLatitude={setLatitude} 
-          setLongitude={setLongitude} 
-          setLocation={setLocation} 
-          reportedIssues={reportedIssues} 
+        <MapComponent
+          setLatitude={setLatitude}
+          setLongitude={setLongitude}
+          setLocation={setLocation}
+          reportedIssues={reportedIssues}
+          routeReady={routeReady}  // Passing this to trigger route calculation
         />
       </section>
 
       <section className="statistics-section">
         <h3>{reportedPotholes} potholes reported, {fixedPotholes} fixed this month!</h3>
       </section>
+
+      {/* Button to trigger best path calculation */}
+      <button onClick={handleRouteButtonClick} className="find-path-button">
+        Find Best Path
+      </button>
     </>
   );
 };

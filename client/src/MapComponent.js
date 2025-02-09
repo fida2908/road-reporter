@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { db } from "./firebaseConfig"; 
+import { db } from "./firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 
 // Custom Icons
@@ -63,25 +63,31 @@ const MapComponent = ({ setLocation, setLatitude, setLongitude, submittedLocatio
   }, []);
 
   // Fetch Reported Locations from Firestore
+  const fetchReports = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "reports"));
+      const reports = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // Filter out fixed issues
+      setReportedLocations(reports.filter((report) => report.status !== "Fixed"));
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "reports"));
-        const reports = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        
-        // Filter out fixed issues
-        const pendingReports = reports.filter((report) => report.status !== "Fixed");
-
-        setReportedLocations(pendingReports);
-      } catch (error) {
-        console.error("Error fetching reports:", error);
-      }
-    };
-
     fetchReports();
+
+    // Listen for updates when an issue is marked as fixed
+    const handleReportUpdate = () => fetchReports();
+    window.addEventListener("reportUpdated", handleReportUpdate);
+
+    return () => {
+      window.removeEventListener("reportUpdated", handleReportUpdate);
+    };
   }, []);
 
   return (
@@ -98,28 +104,28 @@ const MapComponent = ({ setLocation, setLatitude, setLongitude, submittedLocatio
             setSelectedPosition={setSelectedPosition} 
           />
 
-          {/* Current User Location Marker (only if position exists) */}
+          {/* Current User Location Marker */}
           {position && Array.isArray(position) && position.length === 2 && (
             <Marker position={position} icon={userLocationIcon}>
               <Popup>You are here!</Popup>
             </Marker>
           )}
 
-          {/* Selected Position Marker (Only if user clicks on map) */}
+          {/* Selected Position Marker */}
           {selectedPosition && selectedPosition.lat && selectedPosition.lng && (
             <Marker position={[selectedPosition.lat, selectedPosition.lng]}>
               <Popup>{selectedPosition.name}</Popup>
             </Marker>
           )}
 
-          {/* Submitted Location Marker (Only if exists) */}
+          {/* Submitted Location Marker */}
           {submittedLocation && submittedLocation.lat && submittedLocation.lng && (
             <Marker position={[submittedLocation.lat, submittedLocation.lng]} icon={reportedLocationIcon}>
               <Popup>Reported Location</Popup>
             </Marker>
           )}
 
-          {/* Reported Locations Markers (Only "Pending" issues are shown) */}
+          {/* Reported Locations Markers */}
           {Array.isArray(reportedLocations) && reportedLocations.length > 0 &&
             reportedLocations.map((report) => (
               report.latitude && report.longitude && (

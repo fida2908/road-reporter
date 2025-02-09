@@ -23,14 +23,17 @@ const AdminDashboard = () => {
     fetchReports();
   }, []);
 
-  // Mark issue as Fixed
+  // Mark issue as Fixed and trigger update
   const handleMarkAsFixed = async (reportId) => {
     try {
       const reportRef = doc(db, "reports", reportId);
       await updateDoc(reportRef, { status: "Fixed" });
 
-      // Update UI to reflect changes
+      // Remove the fixed report from state
       setReports((prevReports) => prevReports.filter((report) => report.id !== reportId));
+
+      // Notify the map component to refresh
+      window.dispatchEvent(new Event("reportUpdated"));
     } catch (error) {
       console.error("Error updating status:", error);
     }

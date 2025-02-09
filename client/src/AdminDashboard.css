@@ -1,74 +1,95 @@
 .admin-dashboard {
+  max-width: 90%;
+  margin: 20px auto;
   padding: 20px;
-  background-color: black;
-  color: white;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  font-family: "Arial", sans-serif;
 }
 
 h2 {
   text-align: center;
-  color: yellow;
+  color: #080438;
+  font-size: 24px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
-table {
+.dashboard-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
-  background-color: black;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.dashboard-table th {
+  background-color: #080438;
   color: white;
+  text-transform: uppercase;
+  font-size: 15px;
 }
 
-th, td {
-  border: 1px solid yellow;
-  padding: 10px;
-  text-align: left;
+.dashboard-table tr:nth-child(even) {
+  background-color: #f3f3f3;
 }
 
-th {
-  background-color: orange;
-  color: black;
+.dashboard-table tr:hover {
+  background-color: #f1f1f1;
+  transition: 0.3s;
 }
 
-.issue-image {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border: 2px solid yellow;
-}
-
-.status {
-  font-weight: bold;
-  text-transform: capitalize;
-}
-
-.status.pending {
-  color: orange;
-}
-
-.status.in-progress {
-  color: yellow;
-}
-
-.status.resolved {
-  color: white;
-}
-
-select {
-  padding: 5px;
-  background-color: yellow;
-  color: black;
-  border: none;
+.pending-status {
+  color: #dc3545;
   font-weight: bold;
 }
 
-button {
-  padding: 5px 10px;
-  background-color: orange;
-  color: black;
+.fixed-status {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.fix-btn {
+  padding: 8px 12px;
+  background: #28a745;
+  color: white;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
+  transition: all 0.3s ease;
   font-weight: bold;
 }
 
-button:hover {
-  background-color: yellow;
+.fix-btn:hover {
+  background: #218838;
+  transform: scale(1.05);
+}
+
+.image-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-preview img {
+  width: 80px;
+  height: auto;
+  border-radius: 5px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.image-preview img:hover {
+  transform: scale(1.2);
 }

@@ -12,28 +12,30 @@ import { collection, query, onSnapshot } from "firebase/firestore";
 const App = () => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
-
-  // ✅ Define states for location and reports
+  
+  // ✅ State variables for location tracking
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
   const [location, setLocation] = useState("");
-  const [reportedIssues, setReportedIssues] = useState([]); // Stores reports for MapComponent
 
+  // ✅ Stores reported issues for the map
+  const [reportedIssues, setReportedIssues] = useState([]); 
+
+  // ✅ Check authentication from localStorage on mount
   useEffect(() => {
-    // Check authentication from localStorage
     setIsAdminAuthenticated(localStorage.getItem('isAdminAuthenticated') === 'true');
     setIsUserAuthenticated(localStorage.getItem('isUserAuthenticated') === 'true');
   }, []);
 
+  // ✅ Fetch reported issues from Firestore in real time
   useEffect(() => {
-    // Fetch reported issues from Firestore
     const q = query(collection(db, "reports"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const issues = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setReportedIssues(issues);
     });
 
-    return () => unsubscribe(); // Cleanup
+    return () => unsubscribe(); // Cleanup listener
   }, []);
 
   const handleAdminLogin = () => {
@@ -50,7 +52,17 @@ const App = () => {
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/" element={<HomePage reportedIssues={reportedIssues} />} />
+          <Route 
+            path="/" 
+            element={
+              <HomePage 
+                reportedIssues={reportedIssues} 
+                setLatitude={setLatitude} 
+                setLongitude={setLongitude} 
+                setLocation={setLocation} 
+              />
+            } 
+          />
           <Route path="/user-auth" element={<UserAuthPage onLogin={handleUserLogin} />} />
           <Route path="/admin-auth" element={<AdminAuthPage onLogin={handleAdminLogin} />} />
 
@@ -80,8 +92,8 @@ const App = () => {
   );
 };
 
-// ✅ Pass reported pothole data to the map component
-const HomePage = ({ reportedIssues }) => {
+// ✅ HomePage Component (Updated to Pass `setLatitude` and `setLongitude` to MapComponent)
+const HomePage = ({ reportedIssues, setLatitude, setLongitude, setLocation }) => {
   const [reportedPotholes, setReportedPotholes] = useState(0);
   const [fixedPotholes, setFixedPotholes] = useState(0);
 
@@ -112,7 +124,13 @@ const HomePage = ({ reportedIssues }) => {
 
       <section className="map-section">
         <h2>Live Map</h2>
-        <MapComponent reportedIssues={reportedIssues} />
+        {/* ✅ Pass setLatitude, setLongitude, and setLocation to MapComponent */}
+        <MapComponent 
+          setLatitude={setLatitude} 
+          setLongitude={setLongitude} 
+          setLocation={setLocation} 
+          reportedIssues={reportedIssues} 
+        />
       </section>
 
       <section className="statistics-section">

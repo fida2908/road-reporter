@@ -7,7 +7,7 @@ import { collection, getDocs } from "firebase/firestore";
 
 // Custom Icons
 const userLocationIcon = new L.Icon({
-  iconUrl: "/blue-marker.png",
+  iconUrl: "/blue-marker.webp",
   iconSize: [30, 40],
   iconAnchor: [15, 40],
   popupAnchor: [1, -34],
@@ -71,7 +71,11 @@ const MapComponent = ({ setLocation, setLatitude, setLongitude, submittedLocatio
           id: doc.id,
           ...doc.data(),
         }));
-        setReportedLocations(reports);
+        
+        // Filter out fixed issues
+        const pendingReports = reports.filter((report) => report.status !== "Fixed");
+
+        setReportedLocations(pendingReports);
       } catch (error) {
         console.error("Error fetching reports:", error);
       }
@@ -94,8 +98,8 @@ const MapComponent = ({ setLocation, setLatitude, setLongitude, submittedLocatio
             setSelectedPosition={setSelectedPosition} 
           />
 
-          {/* Current User Location Marker */}
-          {position && (
+          {/* Current User Location Marker (only if position exists) */}
+          {position && Array.isArray(position) && position.length === 2 && (
             <Marker position={position} icon={userLocationIcon}>
               <Popup>You are here!</Popup>
             </Marker>
@@ -115,7 +119,7 @@ const MapComponent = ({ setLocation, setLatitude, setLongitude, submittedLocatio
             </Marker>
           )}
 
-          {/* Reported Locations Markers (Fetched from Firestore) */}
+          {/* Reported Locations Markers (Only "Pending" issues are shown) */}
           {Array.isArray(reportedLocations) && reportedLocations.length > 0 &&
             reportedLocations.map((report) => (
               report.latitude && report.longitude && (

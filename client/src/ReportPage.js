@@ -16,7 +16,7 @@ const ReportPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Function to compress images before storing
+  // ✅ Compress Image Before Storing
   const compressImage = (file, callback) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -27,7 +27,7 @@ const ReportPage = () => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
-        const maxSize = 800; // Max size for compression
+        const maxSize = 800; // Max image size
         let width = img.width;
         let height = img.height;
 
@@ -47,12 +47,12 @@ const ReportPage = () => {
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
 
-        callback(canvas.toDataURL("image/jpeg", 0.7)); // Compress quality 70%
+        callback(canvas.toDataURL("image/jpeg", 0.7)); // Compress to 70%
       };
     };
   };
 
-  // ✅ Handle Image Upload and Compression
+  // ✅ Handle Image Upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -68,8 +68,12 @@ const ReportPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedPosition || !issueType || !description) {
-      alert("Please fill in all fields and select a location on the map.");
+    if (!selectedPosition || !selectedPosition.lat || !selectedPosition.lng) {
+      alert("Please select a location on the map.");
+      return;
+    }
+    if (!issueType || !description) {
+      alert("Please fill in all fields.");
       return;
     }
 
@@ -83,15 +87,15 @@ const ReportPage = () => {
         latitude: selectedPosition.lat,
         longitude: selectedPosition.lng,
         location: locationName,
-        imageBase64: image, // Store compressed Base64 image
+        imageBase64: image, // Store Base64 image
         timestamp: new Date(),
       });
 
-      console.log("Report submitted successfully!");
+      console.log("✅ Report submitted successfully!");
       setSuccessMessage("Report submitted successfully! ✅");
       setTimeout(() => setSuccessMessage(""), 3000);
 
-      // Reset form after submission
+      // Reset Form
       setIssueType("");
       setSeverity("Low");
       setDescription("");
@@ -101,7 +105,7 @@ const ReportPage = () => {
       setImagePreview(null);
       setImageName("");
     } catch (error) {
-      console.error("Error submitting report:", error);
+      console.error("🔥 Firestore Error:", error);
       alert("Failed to submit report. Please try again.");
     }
 
@@ -139,12 +143,15 @@ const ReportPage = () => {
 
         <div className="right-column">
           <div className="map-section">
-            <MapComponent 
-              setLatitude={(lat) => setSelectedPosition((prev) => ({ ...prev, lat }))} 
-              setLongitude={(lng) => setSelectedPosition((prev) => ({ ...prev, lng }))} 
-              setLocation={setLocationName} 
-              showMarkers={true} 
-              submittedLocation={selectedPosition} 
+            <MapComponent
+              setLatitude={(lat) =>
+                setSelectedPosition((prev) => ({ ...prev, lat, lng: prev?.lng || null }))
+              }
+              setLongitude={(lng) =>
+                setSelectedPosition((prev) => ({ ...prev, lng, lat: prev?.lat || null }))
+              }
+              setLocation={setLocationName}
+              submittedLocation={selectedPosition}
             />
           </div>
 

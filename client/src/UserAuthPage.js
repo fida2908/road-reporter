@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './UserAuthPage.css';
-import { db, auth, storage } from './firebaseConfig'; // Correct import
+
 
 
 const UserAuthPage = ({ onLogin }) => {

@@ -101,7 +101,7 @@ Describes the flow of website.
 ---
 
 Team Contributions:
-- Fida K A:Frontend development (React, Firebase integration)  
+- Fida K A:Frontend development (React, Firebase integration), Backend setup
 - Bhanu T Baji: Backend setup (Firebase Firestore, Authentication)  
 - Jumana Haseen: Map integration and issue reporting system (Leaflet, OpenStreetMap)
 
